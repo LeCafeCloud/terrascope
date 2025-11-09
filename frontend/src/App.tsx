@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Upload, FileJson, Network, Eye, Sparkles, Server, Lock, Zap } from 'lucide-react';
 
+import { parseTerraformState } from './services/api';
+
 const ParticleBackground = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -141,10 +143,11 @@ const Navigation = () => {
     );
 };
 
-
 const FileUploadZone = () => {
     const [isDragging, setIsDragging] = useState(false);
     const [file, setFile] = useState<File | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -163,6 +166,9 @@ const FileUploadZone = () => {
         const droppedFile = e.dataTransfer.files[0];
         if (droppedFile && droppedFile.name.endsWith('.tfstate')) {
             setFile(droppedFile);
+            setError(null);
+        } else {
+            setError('Please drop a valid .tfstate file');
         }
     };
 
@@ -170,13 +176,30 @@ const FileUploadZone = () => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
             setFile(selectedFile);
+            setError(null);
         }
     };
 
-    const handleVisualize = () => {
-        if (file) {
-            console.log('Visualizing:', file.name);
-            alert(`Ready to visualize: ${file.name}\n(Visualization view will be implemented next)`);
+    const handleVisualize = async () => {
+        if (!file) {
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const graph = await parseTerraformState(file);
+
+            sessionStorage.setItem('terraformGraph', JSON.stringify(graph));
+            sessionStorage.setItem('fileName', file.name);
+
+            window.location.href = '/visualize';
+        } catch (err: any) {
+            setError(err.message || 'Failed to parse Terraform state');
+            console.error('Parse error:', err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -245,17 +268,36 @@ const FileUploadZone = () => {
                             </p>
                         </div>
 
+                        {error && (
+                            <div className="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                                <p className="text-red-400 text-sm">{error}</p>
+                            </div>
+                        )}
+
                         <div className="flex items-center justify-center space-x-4">
                             <button
                                 onClick={handleVisualize}
                                 className="inline-flex items-center space-x-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-violet-500 hover:to-purple-500 transition-all transform hover:scale-105 shadow-lg shadow-violet-500/30"
                             >
-                                <Eye className="w-5 h-5" />
-                                <span>Visualize Infrastructure</span>
+                                {isLoading ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Processing...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Eye className="w-5 h-5" />
+                                        <span>Visualize Infrastructure</span>
+                                    </>
+                                )}
                             </button>
 
                             <button
-                                onClick={() => setFile(null)}
+                                onClick={() => {
+                                    setFile(null);
+                                    setError(null);
+                                }}
+                                disabled={isLoading}
                                 className="text-gray-400 hover:text-white transition-colors px-4 py-2"
                             >
                                 Change file
