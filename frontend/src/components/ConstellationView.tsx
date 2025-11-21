@@ -143,9 +143,37 @@ export default function ConstellationView({
         const scene = sceneRef.current;
         const nodeObjects = nodeObjectsRef.current;
 
-        nodeObjects.forEach((obj) => scene.remove(obj));
+        nodeObjects.forEach((obj) => {
+            scene.remove(obj);
+            obj.geometry.dispose();
+            if (Array.isArray(obj.material)) {
+                obj.material.forEach(mat => mat.dispose());
+            } else {
+                obj.material.dispose();
+            }
+
+            obj.children.forEach(child => {
+                if (child instanceof THREE.Mesh) {
+                    child.geometry.dispose();
+                    if (Array.isArray(child.material)) {
+                        child.material.forEach(mat => mat.dispose());
+                    } else {
+                        child.material.dispose();
+                    }
+                }
+            });
+        });
         nodeObjects.clear();
-        edgeObjectsRef.current.forEach((line) => scene.remove(line));
+        edgeObjectsRef.current.forEach((line) => {
+            scene.remove(line);
+            line.geometry.dispose();
+
+            if (Array.isArray(line.material)) {
+                line.material.forEach(mat => mat.dispose());
+            } else {
+                line.material.dispose();
+            }
+        });
         edgeObjectsRef.current = [];
 
         const filteredNodes = graph.nodes.filter((node) => {
