@@ -39,15 +39,18 @@ export default function ConstellationView({
     const isDraggingRef = useRef(false);
 
     useEffect(() => {
-        if (!containerRef.current) return;
+        if (!containerRef.current) {
+            return;
+        }
 
+        const container = containerRef.current;
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x000000);
         sceneRef.current = scene;
 
         const camera = new THREE.PerspectiveCamera(
             75,
-            containerRef.current.clientWidth / containerRef.current.clientHeight,
+            container.clientWidth / container.clientHeight,
             0.1,
             10000
         );
@@ -56,11 +59,11 @@ export default function ConstellationView({
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(
-            containerRef.current.clientWidth,
-            containerRef.current.clientHeight
+            container.clientWidth,
+            container.clientHeight
         );
         renderer.setPixelRatio(window.devicePixelRatio);
-        containerRef.current.appendChild(renderer.domElement);
+        container.appendChild(renderer.domElement);
         rendererRef.current = renderer;
 
         const controls = new OrbitControls(camera, renderer.domElement);
@@ -108,14 +111,10 @@ export default function ConstellationView({
         renderer.domElement.addEventListener('pointermove', handlePointerMove);
 
         const handleResize = () => {
-            if (!containerRef.current || !camera || !renderer) return;
-            camera.aspect =
-                containerRef.current.clientWidth / containerRef.current.clientHeight;
+            if (!container || !camera || !renderer) return;
+            camera.aspect = container.clientWidth / container.clientHeight;
             camera.updateProjectionMatrix();
-            renderer.setSize(
-                containerRef.current.clientWidth,
-                containerRef.current.clientHeight
-            );
+            renderer.setSize(container.clientWidth, container.clientHeight);
         };
         window.addEventListener('resize', handleResize);
 
@@ -131,8 +130,8 @@ export default function ConstellationView({
             renderer.domElement.removeEventListener('pointermove', handlePointerMove);
             window.removeEventListener('resize', handleResize);
             renderer.dispose();
-            if (containerRef.current && renderer.domElement.parentNode) {
-                containerRef.current.removeChild(renderer.domElement);
+            if (container && renderer.domElement.parentNode) {
+                container.removeChild(renderer.domElement);
             }
         };
     }, []);

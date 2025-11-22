@@ -5,8 +5,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
+        "lint": "eslint . --max-warnings=0 --no-cache",
         "build": "tsc -b && vite build",
-        "lint": "eslint .",
         "preview": "vite preview",
         "test": "vitest",
         "test:ui": "vitest --ui",
@@ -23,6 +23,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.36.0",
+        "@nabla/vite-plugin-eslint": "^2.0.6",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.0",
         "@testing-library/user-event": "^14.6.1",

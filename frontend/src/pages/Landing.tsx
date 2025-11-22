@@ -195,8 +195,10 @@ const FileUploadZone = () => {
             sessionStorage.setItem('fileName', file.name);
 
             window.location.href = '/visualize';
-        } catch (err: any) {
-            setError(err.message || 'Failed to parse Terraform state');
+        } catch (err: unknown) {
+            const errMessage = err instanceof Error ? err.message : 'Failed to parse Terraform state';
+
+            setError(errMessage);
             console.error('Parse error:', err);
         } finally {
             setIsLoading(false);

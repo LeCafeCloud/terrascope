@@ -38,8 +38,8 @@ export default function ResourcePanel({ node, onClose }: ResourcePanelProps) {
                             <span className="text-sm">
                                 <span
                                     className={`inline-block px-2 py-1 rounded text-xs font-medium ${node.mode === 'managed'
-                                            ? 'bg-green-500/20 text-green-400'
-                                            : 'bg-blue-500/20 text-blue-400'
+                                        ? 'bg-green-500/20 text-green-400'
+                                        : 'bg-blue-500/20 text-blue-400'
                                         }`}
                                 >
                                     {node.mode}
@@ -73,7 +73,7 @@ export default function ResourcePanel({ node, onClose }: ResourcePanelProps) {
                                                 <span className="text-sm text-gray-400">Tags</span>
                                             </div>
                                             <div className="flex flex-wrap gap-2 ml-5">
-                                                {Object.entries(value as Record<string, any>).map(
+                                                {Object.entries(value as Record<string, unknown>).map(
                                                     ([tagKey, tagValue]) => (
                                                         <span
                                                             key={tagKey}

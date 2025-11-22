@@ -1,10 +1,23 @@
 /// <reference types="vitest/config" />
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import eslintPlugin from "@nabla/vite-plugin-eslint";
 import path from 'path';
 
 export default defineConfig({
-    plugins: [react()],
+    plugins: [
+        react(),
+        eslintPlugin({
+            eslintOptions: {
+                cache: false,
+                fix: false,
+            },
+            shouldLint: (path: string) => {
+                return !!path.match(/\/src\/[^?]*\.(vue|svelte|m?[jt]sx?)$/);
+            },
+            formatter: "stylish"
+        })
+    ],
     preview: {
         host: true,
         port: 5000

@@ -10,7 +10,7 @@ export interface Node {
     mode: string;
     provider: string;
     module?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
 
 export interface Edge {

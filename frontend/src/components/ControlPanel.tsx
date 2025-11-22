@@ -9,7 +9,11 @@ interface ControlPanelProps {
         module: string;
         mode: string;
     };
-    onFiltersChange: (filters: any) => void;
+    onFiltersChange: (filters: {
+        provider: string;
+        module: string;
+        mode: string;
+    }) => unknown;
 }
 
 function ControlPanel({
