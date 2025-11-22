@@ -23,7 +23,11 @@ func ParseHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer r.Body.Close()
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Printf("failed to close request body: %v", err)
+		}
+	}()
 
 	state, err := parser.ParseTfstate(body)
 	if err != nil {
