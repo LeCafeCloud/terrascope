@@ -88,11 +88,6 @@ jobs:
           token: ${{ secrets.GITOPS_TOKEN }}
           fetch-depth: 0
 
-      - name: Install yq
-        run: |
-          sudo curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
-          sudo chmod +x /usr/local/bin/yq
-
       - name: Update Backend deployment manifest
         run: |
           IMAGE_TAG="${{ needs.deploy.outputs.image-tag }}"
