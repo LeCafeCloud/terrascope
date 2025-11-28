@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
     strategy:
       matrix:
         component: [backend, frontend]
@@ -87,13 +88,18 @@ jobs:
           token: ${{ secrets.GITOPS_TOKEN }}
           fetch-depth: 0
 
+      - name: Install yq
+        run: |
+          sudo curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -o /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
       - name: Update Backend deployment manifest
         run: |
           IMAGE_TAG="${{ needs.deploy.outputs.image-tag }}"
           NEW_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/terrascope-backend:${IMAGE_TAG}"
 
-          sed -i "s|image: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/terrascope-backend:.*|image: ${NEW_IMAGE}|g" \
-          infra/k8s/deployments/backend.yml
+          yq -i '.spec.template.spec.containers[0].image = strenv(NEW_IMAGE)' \
+            infra/k8s/deployments/backend.yml
 
           echo "✅ Updated backend deployment to: ${NEW_IMAGE}"
 
@@ -102,8 +108,8 @@ jobs:
           IMAGE_TAG="${{ needs.deploy.outputs.image-tag }}"
           NEW_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/terrascope-frontend:${IMAGE_TAG}"
 
-          sed -i "s|image: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/terrascope-frontend:.*|image: ${NEW_IMAGE}|g" \
-            infra/k8s/deployments/frontend.yml
+          yq -i '.spec.template.spec.containers[0].image = strenv(NEW_IMAGE)' \
+            infra/k8s/deployments/backend.yml
 
           echo "✅ Updated frontend deployment to: ${NEW_IMAGE}"
 
