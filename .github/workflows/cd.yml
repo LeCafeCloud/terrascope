@@ -1,9 +1,7 @@
 name: CD
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -76,69 +74,12 @@ jobs:
           sarif_file: "trivy-${{ matrix.component }}-results.sarif"
           category: "trivy-${{ matrix.component }}-production"
 
-  update-k8s-manifests:
+  notify-deploy:
     needs: deploy
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          token: ${{ secrets.GITOPS_TOKEN }}
-          fetch-depth: 0
-
-      - name: Update Backend deployment manifest
-        run: |
-          IMAGE_TAG="${{ needs.deploy.outputs.image-tag }}"
-          NEW_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/terrascope-backend:${IMAGE_TAG}"
-
-          yq -i '.spec.template.spec.containers[0].image = strenv(NEW_IMAGE)' \
-            infra/k8s/deployments/backend.yml
-
-          echo "✅ Updated backend deployment to: ${NEW_IMAGE}"
-
-      - name: Update Frontend deployment manifest
-        run: |
-          IMAGE_TAG="${{ needs.deploy.outputs.image-tag }}"
-          NEW_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/terrascope-frontend:${IMAGE_TAG}"
-
-          yq -i '.spec.template.spec.containers[0].image = strenv(NEW_IMAGE)' \
-            infra/k8s/deployments/backend.yml
-
-          echo "✅ Updated frontend deployment to: ${NEW_IMAGE}"
-
-      - name: Verify manifest changes
-        run: |
-          echo "=== Backend Deployment ==="
-          grep "image:" infra/k8s/deployments/backend.yml
-          echo ""
-          echo "=== Frontend Deployment ==="
-          grep "image:" infra/k8s/deployments/frontend.yml
-
-      - name: Commit and push manifest updates
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add infra/k8s/deployments/
-
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-            exit 0
-          fi
-
-          git commit -m "chore(release): update images to ${{ needs.deploy.outputs.image-tag }} [skip ci]
-
-          - Backend: terrascope-backend:${{ needs.deploy.outputs.image-tag }}
-          - Frontend: terrascope-frontend:${{ needs.deploy.outputs.image-tag }}
-
-          Source commit: ${{ github.sha }}
-          Triggered by: ${{ github.actor }}
-          Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-
-          git push origin master
-
       - name: Create deployment summary
         uses: actions/github-script@v8
         with:
@@ -157,6 +98,5 @@ jobs:
               
               **ArgoCD Status:**
               ArgoCD will automatically detect changes and sync within 3 minutes (default polling interval).
-
               **Deployment Commit:** Will appear as next commit in this repository`
             })

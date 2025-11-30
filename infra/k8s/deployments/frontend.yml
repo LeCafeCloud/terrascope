@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: terrascope-frontend
-  namespace: terrascope
   labels:
     app: terrascope-frontend
     component: ui

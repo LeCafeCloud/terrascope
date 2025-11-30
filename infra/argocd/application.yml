@@ -3,6 +3,20 @@ kind: Application
 metadata:
   name: terrascope
   namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: |
+      backend=ghcr.io/lecafecloud/terrascope-backend,
+      frontend=ghcr.io/lecafecloud/terrascope-frontend
+    argocd-image-updater.argoproj.io/backend.update-strategy: semver
+    argocd-image-updater.argoproj.io/frontend.update-strategy: semver
+    argocd-image-updater.argoproj.io/backend.allow-tags: regexp:^[0-9]+\.[0-9]+\.[0-9]+$
+    argocd-image-updater.argoproj.io/frontend.allow-tags: regexp:^[0-9]+\.[0-9]+\.[0-9]+$
+    argocd-image-updater.argoproj.io/backend.update-interval: 2m
+    argocd-image-updater.argoproj.io/frontend.update-interval: 2m
+    argocd-image-updater.argoproj.io/backend.pull-secret: pullsecret:argocd/ghcr-secret
+    argocd-image-updater.argoproj.io/frontend.pull-secret: pullsecret:argocd/ghcr-secret
+    argocd-image-updater.argoproj.io/write-back-method: argocd
+    argocd-image-updater.argoproj.io/write-back-target: "kustomization:."
   finalizers:
     - argocd.argoproj.io/resources-finalizer-background
 spec:
