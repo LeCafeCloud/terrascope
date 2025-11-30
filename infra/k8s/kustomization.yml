@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployments/backend.yml
+  - deployments/frontend.yml
+images:
+  - name: ghcr.io/lecafecloud/terrascope-backend
+    newTag: 0.1.0
+  - name: ghcr.io/lecafecloud/terrascope-frontend
+    newTag: 0.1.0
