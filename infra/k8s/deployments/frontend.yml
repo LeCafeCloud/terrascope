@@ -20,7 +20,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: terrascope-ui
-          image: ghcr.io/lecafecloud/terrascope-frontend:latest
+          image: ghcr.io/lecafecloud/terrascope-frontend
           ports:
             - containerPort: 3000
               name: http

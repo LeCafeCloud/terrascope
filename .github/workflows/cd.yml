@@ -97,6 +97,5 @@ jobs:
               - 🔹 Frontend: \`ghcr.io/lecafecloud/terrascope-frontend:${{ needs.deploy.outputs.image-tag }}\`
               
               **ArgoCD Status:**
-              ArgoCD will automatically detect changes and sync within 3 minutes (default polling interval).
-              **Deployment Commit:** Will appear as next commit in this repository`
+              ArgoCD will automatically detect changes and sync within 3 minutes (default polling interval).`
             })

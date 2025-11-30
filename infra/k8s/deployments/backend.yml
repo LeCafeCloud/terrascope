@@ -20,7 +20,7 @@ spec:
         - name: ghcr-secret
       containers:
         - name: terrascope-api
-          image: ghcr.io/lecafecloud/terrascope-backend:latest
+          image: ghcr.io/lecafecloud/terrascope-backend
           ports:
             - containerPort: 8080
               name: http
